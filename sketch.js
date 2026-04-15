@@ -17,14 +17,19 @@ function setup() {
   videoIdle = createVideo('12.mp4');
   videoWork = createVideo('123.mp4');
 
-  // idle만 반복
-  videoIdle.loop();
+  // 🔥 autoplay 문제 해결 (중요)
+  videoIdle.volume(0);
+  videoWork.volume(0);
 
-  // work는 수동 제어
+  // idle 영상 (항상 재생)
+  videoIdle.loop();
+  videoIdle.play();
+
+  // work 영상 (수동)
   videoWork.pause();
   videoWork.time(0);
 
-  // 화면에 안 보이게
+  // 화면에 직접 안 보이게
   videoIdle.hide();
   videoWork.hide();
 }
@@ -40,7 +45,7 @@ function draw() {
     for (let i = 0; i < cam.pixels.length; i += 4) {
       let diff = abs(cam.pixels[i] - prevFrame[i]);
 
-      // 🔥 작은 노이즈 무시
+      // 작은 노이즈 무시
       if (diff > 30) {
         motionCount++;
       }
@@ -56,11 +61,11 @@ function draw() {
     videoWork.play();
   }
 
-  // 🎭 상태에 따라 출력
+  // 🎭 상태에 따라 영상 출력
   if (isPlaying) {
     image(videoWork, 0, 0, width, height);
 
-    // 영상 끝나면 idle로
+    // 끝나면 idle로 복귀
     if (videoWork.elt.ended) {
       isPlaying = false;
       videoWork.pause();
