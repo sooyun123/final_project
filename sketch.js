@@ -13,23 +13,30 @@ function setup() {
   cam.size(640, 480);
   cam.hide();
 
-  // 🎥 영상
+  // 🎥 영상 로드
   videoIdle = createVideo('12.mp4');
   videoWork = createVideo('123.mp4');
 
-  // 🔥 autoplay 문제 해결 (중요)
-  videoIdle.volume(0);
-  videoWork.volume(0);
+  // 🔥 Chrome autoplay 해결 (핵심)
+  videoIdle.elt.muted = true;
+  videoWork.elt.muted = true;
 
-  // idle 영상 (항상 재생)
+  videoIdle.attribute('muted', '');
+  videoWork.attribute('muted', '');
+
+  videoIdle.attribute('autoplay', '');
+  videoIdle.attribute('playsinline', '');
+
+  videoWork.attribute('playsinline', '');
+
+  // 🎬 영상 설정
   videoIdle.loop();
   videoIdle.play();
 
-  // work 영상 (수동)
   videoWork.pause();
   videoWork.time(0);
 
-  // 화면에 직접 안 보이게
+  // 화면에 숨기고 canvas에만 출력
   videoIdle.hide();
   videoWork.hide();
 }
@@ -45,7 +52,6 @@ function draw() {
     for (let i = 0; i < cam.pixels.length; i += 4) {
       let diff = abs(cam.pixels[i] - prevFrame[i]);
 
-      // 작은 노이즈 무시
       if (diff > 30) {
         motionCount++;
       }
@@ -54,14 +60,15 @@ function draw() {
 
   prevFrame = cam.pixels.slice();
 
-  // 🔥 움직임 감지 → work 시작
+  // 🔥 움직임 감지 → work 영상 실행
   if (motionCount > 5000 && !isPlaying) {
     isPlaying = true;
+
     videoWork.time(0);
     videoWork.play();
   }
 
-  // 🎭 상태에 따라 영상 출력
+  // 🎭 상태별 출력
   if (isPlaying) {
     image(videoWork, 0, 0, width, height);
 
