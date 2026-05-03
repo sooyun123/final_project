@@ -8,34 +8,30 @@ let isPlaying = false;
 function setup() {
   createCanvas(640, 480);
 
+  // 📸 webcam
   cam = createCapture(VIDEO);
   cam.size(640, 480);
   cam.hide();
 
-  videoIdle = createVideo('12.mp4');
-  videoWork = createVideo('123.mp4');
+  // 🎥 HTML video 직접 생성 (중요🔥)
+  videoIdle = document.createElement('video');
+  videoIdle.src = '12.mp4';
+  videoIdle.muted = true;
+  videoIdle.loop = true;
+  videoIdle.playsInline = true;
+  videoIdle.autoplay = true;
+  videoIdle.play();
 
-  // autoplay 대응
-  videoIdle.elt.muted = true;
-  videoWork.elt.muted = true;
-
-  videoIdle.attribute('muted', '');
-  videoIdle.attribute('autoplay', '');
-  videoIdle.attribute('playsinline', '');
-
-  videoIdle.loop();
-  videoIdle.play(); // 여기서 한 번만 실행
-
-  videoWork.pause();
-
-  videoIdle.hide();
-  videoWork.hide();
+  videoWork = document.createElement('video');
+  videoWork.src = '123.mp4';
+  videoWork.muted = true;
+  videoWork.playsInline = true;
 }
 
 function draw() {
   background(0);
 
-  if (videoIdle.elt.readyState < 2) return;
+  if (videoIdle.readyState < 2) return;
 
   cam.loadPixels();
 
@@ -50,24 +46,19 @@ function draw() {
 
   prevFrame = cam.pixels.slice();
 
-  // 🔥 여기 중요: 상태 바뀔 때만 play 실행
+  // 🔥 상태 바뀔 때만 play
   if (motionCount > 5000 && !isPlaying) {
     isPlaying = true;
 
-    videoWork.time(0);
+    videoWork.currentTime = 0;
     videoWork.play();
   }
 
   if (isPlaying) {
-    if (videoWork.elt.readyState >= 2) {
-      image(videoWork, 0, 0, width, height);
-    }
+    image(videoWork, 0, 0, width, height);
 
-    if (videoWork.elt.ended) {
+    if (videoWork.ended) {
       isPlaying = false;
-
-      videoWork.pause();
-      videoWork.time(0);
     }
 
   } else {
