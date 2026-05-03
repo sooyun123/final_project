@@ -15,7 +15,7 @@ function setup() {
   videoIdle = createVideo('12.mp4');
   videoWork = createVideo('123.mp4');
 
-  // 🔥 autoplay 핵심
+  // autoplay 대응
   videoIdle.elt.muted = true;
   videoWork.elt.muted = true;
 
@@ -24,19 +24,18 @@ function setup() {
   videoIdle.attribute('playsinline', '');
 
   videoIdle.loop();
-  videoIdle.play();
+  videoIdle.play(); // 여기서 한 번만 실행
 
-  videoWork.hide();
+  videoWork.pause();
+
   videoIdle.hide();
+  videoWork.hide();
 }
 
 function draw() {
   background(0);
 
-  // ❗ 영상 준비 안됐으면 그냥 기다림
-  if (videoIdle.elt.readyState < 2) {
-    return;
-  }
+  if (videoIdle.elt.readyState < 2) return;
 
   cam.loadPixels();
 
@@ -51,8 +50,10 @@ function draw() {
 
   prevFrame = cam.pixels.slice();
 
+  // 🔥 여기 중요: 상태 바뀔 때만 play 실행
   if (motionCount > 5000 && !isPlaying) {
     isPlaying = true;
+
     videoWork.time(0);
     videoWork.play();
   }
@@ -64,6 +65,7 @@ function draw() {
 
     if (videoWork.elt.ended) {
       isPlaying = false;
+
       videoWork.pause();
       videoWork.time(0);
     }
